@@ -1,18 +1,549 @@
+
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Interactive Lab | CyberTraceX</title><link rel="stylesheet" href="style.css"><script src="script.js" defer></script></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0a16">
+  <title>Interactive Lab | CyberTraceX</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+
+  <style>
+    /* CyberTraceX Lab styles only */
+    .ctx-training {
+      margin-top: 36px;
+      padding: 28px;
+      color: #f4f0ff;
+      background: #100d1d;
+      border: 1px solid #35294b;
+      border-radius: 18px;
+    }
+
+    .ctx-training * { box-sizing: border-box; }
+
+    .ctx-training h2,
+    .ctx-training h3,
+    .ctx-training h4 { color: #fff; }
+
+    .ctx-training p { line-height: 1.7; }
+
+    .ctx-training-header {
+      margin-bottom: 26px;
+    }
+
+    .ctx-training-header h2 {
+      margin: 8px 0;
+      font-size: clamp(25px, 4vw, 34px);
+    }
+
+    .ctx-training-header p { color: #bcb5ce; }
+
+    .ctx-training-tag {
+      color: #bba3ff;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+    }
+
+    .ctx-training-grid {
+      display: grid;
+      grid-template-columns: 235px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .ctx-course-sidebar,
+    .ctx-course-main {
+      min-width: 0;
+      padding: 20px;
+      border: 1px solid #35294b;
+      border-radius: 13px;
+      background: #151124;
+    }
+
+    .ctx-course-sidebar h3 {
+      margin: 0 0 15px;
+      font-size: 17px;
+    }
+
+    .ctx-lesson-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .ctx-lesson-btn {
+      width: 100%;
+      padding: 12px;
+      text-align: left;
+      color: #c9c1dc;
+      background: #100d1d;
+      border: 1px solid #35294b;
+      border-radius: 9px;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .ctx-lesson-btn:hover:not(:disabled),
+    .ctx-lesson-btn.ctx-selected {
+      background: #261b40;
+      border-color: #a78bfa;
+    }
+
+    .ctx-lesson-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .ctx-lesson-btn strong,
+    .ctx-lesson-btn small {
+      display: block;
+    }
+
+    .ctx-lesson-btn strong {
+      color: #fff;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .ctx-lesson-btn small {
+      color: #aaa1c0;
+      font-size: 11px;
+    }
+
+    .ctx-progress-area {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid #35294b;
+    }
+
+    .ctx-progress-info {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 9px;
+      color: #c9c1dc;
+      font-size: 12px;
+    }
+
+    .ctx-progress-info strong { color: #c4aaff; }
+
+    .ctx-progress-track {
+      height: 7px;
+      overflow: hidden;
+      background: #35294b;
+      border-radius: 9px;
+    }
+
+    #ctx-progress-bar {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #8055f5, #c084fc);
+      transition: width .25s ease;
+    }
+
+    .ctx-course-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      color: #c3aaff;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .8px;
+    }
+
+    .ctx-simulation-label { color: #92e7b5; }
+
+    .ctx-course-main > h3 {
+      margin: 0 0 8px;
+      font-size: 25px;
+    }
+
+    .ctx-course-description {
+      color: #bcb5ce;
+      margin-bottom: 22px;
+    }
+
+    .ctx-challenge-card {
+      padding: 17px;
+      margin-bottom: 20px;
+      background: #201632;
+      border: 1px solid #493360;
+      border-radius: 11px;
+    }
+
+    .ctx-challenge-card > span {
+      color: #c3aaff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .ctx-challenge-card h4 {
+      margin: 9px 0;
+      font-size: 17px;
+    }
+
+    .ctx-challenge-card p {
+      margin: 0 0 14px;
+      color: #d0c8e0;
+      font-size: 13px;
+    }
+
+    .ctx-hint-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+      color: #aaa1c0;
+      font-size: 11px;
+    }
+
+    .ctx-hint-row code {
+      padding: 6px 9px;
+      color: #e0d0ff;
+      background: #100d1d;
+      border: 1px solid #493360;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+
+    .ctx-terminal-window {
+      overflow: hidden;
+      background: #090910;
+      border: 1px solid #403451;
+      border-radius: 11px;
+    }
+
+    .ctx-terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      color: #bdb5d0;
+      background: #1c172a;
+      border-bottom: 1px solid #35294b;
+      font-size: 11px;
+    }
+
+    .ctx-terminal-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .ctx-terminal-dots i {
+      display: block;
+      width: 8px;
+      height: 8px;
+      background: #9b83cb;
+      border-radius: 50%;
+    }
+
+    .ctx-terminal-dots i:first-child { background: #ff7185; }
+    .ctx-terminal-dots i:nth-child(2) { background: #ffd166; }
+    .ctx-terminal-dots i:nth-child(3) { background: #61d6a5; }
+
+    .ctx-terminal-name {
+      overflow-wrap: anywhere;
+    }
+
+    .ctx-terminal-badge {
+      margin-left: auto;
+      color: #8de7b3;
+      font-size: 9px;
+    }
+
+    .ctx-terminal-content { padding: 16px; }
+
+    .ctx-terminal-welcome {
+      margin-bottom: 19px;
+      color: #9890ad;
+      font: 12px/1.8 monospace;
+    }
+
+    .ctx-terminal-prompt {
+      display: block;
+      margin-bottom: 9px;
+      color: #c0a5ff;
+      font: 12px monospace;
+    }
+
+    .ctx-terminal-form {
+      display: flex;
+      gap: 9px;
+    }
+
+    .ctx-terminal-form input {
+      width: 100%;
+      min-width: 0;
+      flex: 1;
+      padding: 12px;
+      color: #f4efff;
+      background: #171321;
+      border: 1px solid #493b5c;
+      border-radius: 7px;
+      outline: none;
+      font: 13px monospace;
+    }
+
+    .ctx-terminal-form input:focus {
+      border-color: #b09aff;
+      box-shadow: 0 0 0 2px #a78bfa25;
+    }
+
+    .ctx-run-btn,
+    .ctx-next-btn,
+    .ctx-reset-btn {
+      padding: 11px 14px;
+      border-radius: 7px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .ctx-run-btn,
+    .ctx-next-btn {
+      color: #fff;
+      background: linear-gradient(135deg, #8055f5, #a855f7);
+      border: 0;
+    }
+
+    .ctx-reset-btn {
+      color: #d5cbe8;
+      background: #211a31;
+      border: 1px solid #493b5c;
+    }
+
+    .ctx-feedback {
+      margin-top: 13px;
+      padding: 12px;
+      color: #c7bfd8;
+      background: #171321;
+      border: 1px solid #35294b;
+      border-radius: 7px;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .ctx-feedback.ctx-correct {
+      color: #9df0c0;
+      background: #10231a;
+      border-color: #285940;
+    }
+
+    .ctx-feedback.ctx-incorrect {
+      color: #ffbac5;
+      background: #29151e;
+      border-color: #653344;
+    }
+
+    .ctx-output-box {
+      margin-top: 14px;
+      padding: 13px;
+      background: #0f0c18;
+      border: 1px solid #302640;
+      border-radius: 7px;
+    }
+
+    .ctx-output-label {
+      margin-bottom: 9px;
+      color: #a69abb;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    #ctx-training-output {
+      margin: 0;
+      color: #c8e8d4;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font: 12px/1.8 monospace;
+    }
+
+    .ctx-training-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 17px;
+    }
+
+    .ctx-next-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .ctx-training-note {
+      margin: 16px 0 0;
+      color: #928aa5;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 760px) {
+      .ctx-training { padding: 18px; }
+      .ctx-training-grid { grid-template-columns: 1fr; }
+      .ctx-course-sidebar, .ctx-course-main { padding: 16px; }
+      .ctx-course-main > h3 { font-size: 22px; }
+      .ctx-terminal-form { flex-direction: column; }
+      .ctx-run-btn { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ctx-training * { transition: none !important; }
+    }
+  </style>
+</head>
+
 <body>
-<header class="header"><a class="brand" href="index.html"><svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 39 11v11c0 9-6 16-15 21C15 38 9 31 9 22V11Z" fill="none" stroke="#a996ff" stroke-width="2.4"/><path d="m17 19 7-6 7 6M17 29l7 6 7-6M24 14v20" fill="none" stroke="#f4efff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>CyberTrace<span class="brand-x">X</span></span></a><button class="menu-toggle" aria-expanded="false" aria-controls="site-nav">Menu ☰</button><nav class="nav" id="site-nav"><a href="index.html">Home</a><a href="articles.html">Articles</a><a class="active" href="tools.html">Interactive Lab</a><a href="about.html">About</a></nav></header>
+<header class="header">
+  <a class="brand" href="index.html">
+    <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+      <path d="M24 5 39 11v11c0 9-6 16-15 21C15 38 9 31 9 22V11Z" fill="none" stroke="#a996ff" stroke-width="2.4"/>
+      <path d="m17 19 7-6 7 6M17 29l7 6 7-6M24 14v20" fill="none" stroke="#f4efff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>CyberTrace<span class="brand-x">X</span></span>
+  </a>
+  <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav">Menu ☰</button>
+  <nav class="nav" id="site-nav">
+    <a href="index.html">Home</a>
+    <a href="articles.html">Articles</a>
+    <a class="active" href="tools.html">Interactive Lab</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+
 <main class="container page">
-  <p class="eyebrow">SAFE DEMONSTRATION</p><h1>Interactive <span class="heading-accent">Lab</span></h1><p class="page-lead">Try a few commands in this simulated terminal. Nothing is run on your device.</p>
-  <section class="terminal"><div class="terminal-top"><div class="terminal-lights"><i></i><i></i><i></i></div><span>cybertracex-lab</span><span class="terminal-badge">SIMULATION</span></div><div class="terminal-output" id="terminal-output" aria-live="polite"><p class="term-muted">CyberTraceX Learning Lab [Version 1.0]</p><p>Type <code>help</code> to see available commands.</p></div><form id="terminal-form" class="terminal-form"><label for="terminal-input">$</label><input id="terminal-input" name="command" autocomplete="off" spellcheck="false" placeholder="Type a command..." aria-label="Demo command"><button class="button button-primary" type="submit">Run ↗</button></form></section>
-  <div class="command-chips"><span>Try:</span><button type="button" data-command="help">help</button><button type="button" data-command="about">about</button><button type="button" data-command="check">check</button><button type="button" data-command="clear">clear</button></div>
+  <p class="eyebrow">SAFE DEMONSTRATION</p>
+  <h1>Interactive <span class="heading-accent">Lab</span></h1>
+  <p class="page-lead">
+    Learn cybersecurity step by step. Type commands, complete challenges,
+    and explore concepts in a safe simulated environment.
+  </p>
+
+  <section class="ctx-training" id="ctx-training-lab">
+    <div class="ctx-training-header">
+      <span class="ctx-training-tag">CYBERTRACEX LEARNING ZONE</span>
+      <h2>Beginner Training Mode</h2>
+      <p>
+        Learn, practise, and receive instant feedback as you work through
+        three beginner-friendly cybersecurity lessons.
+      </p>
+    </div>
+
+    <div class="ctx-training-grid">
+      <aside class="ctx-course-sidebar">
+        <h3>Your Training</h3>
+        <div class="ctx-lesson-list" id="ctx-lesson-list"></div>
+
+        <div class="ctx-progress-area">
+          <div class="ctx-progress-info">
+            <span>Overall progress</span>
+            <strong id="ctx-progress-text">0%</strong>
+          </div>
+          <div class="ctx-progress-track">
+            <div id="ctx-progress-bar"></div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="ctx-course-main">
+        <div class="ctx-course-meta">
+          <span id="ctx-lesson-number">LESSON 1 OF 3</span>
+          <span class="ctx-simulation-label">● SIMULATION MODE</span>
+        </div>
+
+        <h3 id="ctx-lesson-title">Terminal Basics</h3>
+        <p class="ctx-course-description" id="ctx-lesson-description">
+          Learn how commands work in a terminal.
+        </p>
+
+        <div class="ctx-challenge-card">
+          <span>YOUR CHALLENGE</span>
+          <h4 id="ctx-challenge-title">Challenge 1</h4>
+          <p id="ctx-challenge-description">
+            Type the command shown in the hint.
+          </p>
+          <div class="ctx-hint-row">
+            <span>COMMAND HINT</span>
+            <code id="ctx-command-hint">help</code>
+          </div>
+        </div>
+
+        <div class="ctx-terminal-window">
+          <div class="ctx-terminal-bar">
+            <div class="ctx-terminal-dots"><i></i><i></i><i></i></div>
+            <span class="ctx-terminal-name">cybertracex-training-terminal</span>
+            <span class="ctx-terminal-badge">SIMULATED</span>
+          </div>
+
+          <div class="ctx-terminal-content">
+            <div class="ctx-terminal-welcome">
+              CyberTraceX Learning Lab<br>
+              Training environment ready.<br>
+              No real system commands are executed.
+            </div>
+
+            <label class="ctx-terminal-prompt" for="ctx-command-input">
+              student@cybertracex:~$
+            </label>
+
+            <form class="ctx-terminal-form" id="ctx-command-form" autocomplete="off">
+              <input
+                id="ctx-command-input"
+                name="command"
+                type="text"
+                placeholder="Type a command..."
+                autocomplete="off"
+                spellcheck="false"
+                autocapitalize="off"
+                required
+              >
+              <button class="ctx-run-btn" type="submit">Run command ↗</button>
+            </form>
+
+            <div class="ctx-feedback" id="ctx-feedback" role="status" aria-live="polite">
+              Waiting for your command...
+            </div>
+
+            <div class="ctx-output-box">
+              <div class="ctx-output-label">LAB OUTPUT</div>
+              <pre id="ctx-training-output">Your simulated results will appear here.</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="ctx-training-actions">
+          <button class="ctx-reset-btn" id="ctx-reset-btn" type="button">
+            ↻ Reset lesson
+          </button>
+          <button class="ctx-next-btn" id="ctx-next-btn" type="button" disabled>
+            Next challenge →
+          </button>
+        </div>
+
+        <p class="ctx-training-note">
+          This is an educational simulation. Commands do not run on your
+          device and do not scan real computers or networks.
+        </p>
+      </div>
+    </div>
+  </section>
 </main>
+
 <footer class="footer">
   <div class="footer-main container">
     <div class="footer-about">
       <a class="brand footer-brand" href="index.html">
-        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 39 11v11c0 9-6 16-15 21C15 38 9 31 9 22V11Z" fill="none" stroke="#a996ff" stroke-width="2.4"/><path d="m17 19 7-6 7 6M17 29l7 6 7-6M24 14v20" fill="none" stroke="#f4efff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 5 39 11v11c0 9-6 16-15 21C15 38 9 31 9 22V11Z" fill="none" stroke="#a996ff" stroke-width="2.4"/>
+          <path d="m17 19 7-6 7 6M17 29l7 6 7-6M24 14v20" fill="none" stroke="#f4efff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
         <span>CyberTrace<span class="brand-x">X</span></span>
       </a>
       <p>Clear concepts. Safer choices. Stronger digital awareness.</p>
@@ -28,10 +559,306 @@
         </a>
       </div>
     </div>
-    <div class="footer-links"><h3>Explore</h3><a href="index.html">Home</a><a href="articles.html">Articles</a><a href="tools.html">Interactive Lab</a></div>
-    <div class="footer-links"><h3>Project</h3><a href="about.html">About CyberTraceX</a><a href="privacy.html">Privacy Policy</a><a href="https://arusham-tahir.github.io/cyberfunnel/" target="_blank" rel="noopener noreferrer">CyberFunnel</a></div>
 
-<div class="footer-contact"><h3>FAQs</h3><p>Have questions about cybersecurity?</p><a href="faq.html">View FAQs →</a></div>
+    <div class="footer-links">
+      <h3>Explore</h3>
+      <a href="index.html">Home</a>
+      <a href="articles.html">Articles</a>
+      <a href="tools.html">Interactive Lab</a>
+    </div>
+
+    <div class="footer-links">
+      <h3>Project</h3>
+      <a href="about.html">About CyberTraceX</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="https://arusham-tahir.github.io/cyberfunnel/" target="_blank" rel="noopener noreferrer">CyberFunnel</a>
+    </div>
+
+    <div class="footer-contact">
+      <h3>FAQs</h3>
+      <p>Have questions about cybersecurity?</p>
+      <a href="faq.html">View FAQs →</a>
+    </div>
   </div>
-  <div class="footer-bottom"><div class="container"><span>© <span data-year></span> CyberTraceX</span><span>Built for curious minds.</span></div></div>
-</footer></body></html>
+
+  <div class="footer-bottom">
+    <div class="container">
+      <span>© <span data-year></span> CyberTraceX</span>
+      <span>Built for curious minds.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+
+  const root = document.getElementById("ctx-training-lab");
+  if (!root || root.dataset.initialized === "true") return;
+  root.dataset.initialized = "true";
+
+  const lessons = [
+    {
+      title: "Terminal Basics",
+      subtitle: "Commands and syntax",
+      description: "Learn how commands work and how to read terminal responses.",
+      challenges: [
+        {
+          title: "Use the help command",
+          description: "Enter the command that displays the available practice commands.",
+          hint: "help",
+          output: "Available simulated commands:\nhelp       - Show available commands\nabout      - Learn about this lab\ncheck      - Run a sample status check\nclear      - Clear the output"
+        },
+        {
+          title: "Explore the lab",
+          description: "Find out what this training lab is designed to do.",
+          hint: "about",
+          output: "CyberTraceX Training Lab\nPurpose: Beginner cybersecurity education\nMode: Safe simulation\nReal system access: None"
+        },
+        {
+          title: "Run a sample check",
+          description: "Run the lab's simulated status check.",
+          hint: "check",
+          output: "Sample status check complete.\nTraining environment: Ready\nReal device scan: Not performed"
+        }
+      ]
+    },
+    {
+      title: "Cybersecurity Concepts",
+      subtitle: "Hashing and password safety",
+      description: "Explore basic security concepts using educational examples.",
+      challenges: [
+        {
+          title: "Learn about hashing",
+          description: "Display an explanation of hashing.",
+          hint: "hash-demo",
+          output: "HASHING DEMONSTRATION\nHashing transforms input data into a fixed-length digest.\nIt can help verify data integrity. Passwords should be stored using suitable password-hashing methods.\nThis is a conceptual example, not a real hashing calculation."
+        },
+        {
+          title: "Review password safety",
+          description: "Display practical password safety recommendations.",
+          hint: "password-tips",
+          output: "PASSWORD SAFETY TIPS\n1. Use long, unique passwords.\n2. Consider using a password manager.\n3. Enable multi-factor authentication.\n4. Never share verification codes.\n5. Change passwords if an account is compromised."
+        },
+        {
+          title: "Review a sample security log",
+          description: "Inspect a fictional security event.",
+          hint: "log-review",
+          output: "SAMPLE SECURITY LOG\nEvent: Multiple unsuccessful sign-in attempts\nSource: Fictional training record\nSuggested action: Review the activity and follow the appropriate security process.\nThis is fictional data."
+        }
+      ]
+    },
+    {
+      title: "Network Learning",
+      subtitle: "IP addresses and DNS",
+      description: "Understand networking through fictional sample results.",
+      challenges: [
+        {
+          title: "Understand a sample IP",
+          description: "Display information about an example IP address.",
+          hint: "ip-info",
+          output: "SAMPLE IP INFORMATION\nAddress: 192.0.2.10\nThis address belongs to a range reserved for documentation examples.\nNo real device has been contacted."
+        },
+        {
+          title: "Learn about DNS",
+          description: "Display a basic explanation of DNS.",
+          hint: "dns-demo",
+          output: "DNS DEMONSTRATION\nDNS stands for Domain Name System.\nIt helps translate domain names into IP addresses.\nA browser can use DNS to help locate a website's server.\nNo real DNS lookup was performed."
+        },
+        {
+          title: "Review a simulated network",
+          description: "Display a fictional network summary.",
+          hint: "network-demo",
+          output: "SIMULATED NETWORK SUMMARY\nExample devices: 3\nExample services: Web, DNS\nStatus: Training scenario loaded\nReal network scan: Not performed"
+        }
+      ]
+    }
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const lessonList = $("ctx-lesson-list");
+  const lessonNumber = $("ctx-lesson-number");
+  const lessonTitle = $("ctx-lesson-title");
+  const lessonDescription = $("ctx-lesson-description");
+  const challengeTitle = $("ctx-challenge-title");
+  const challengeDescription = $("ctx-challenge-description");
+  const commandHint = $("ctx-command-hint");
+  const commandInput = $("ctx-command-input");
+  const commandForm = $("ctx-command-form");
+  const feedback = $("ctx-feedback");
+  const output = $("ctx-training-output");
+  const nextButton = $("ctx-next-btn");
+  const resetButton = $("ctx-reset-btn");
+  const progressText = $("ctx-progress-text");
+  const progressBar = $("ctx-progress-bar");
+
+  let currentLesson = 0;
+  let currentChallenge = 0;
+  let unlockedLessons = 1;
+  const completed = new Set();
+
+  const totalChallenges = lessons.reduce(
+    (sum, lesson) => sum + lesson.challenges.length, 0
+  );
+
+  const key = (lesson, challenge) => `${lesson}-${challenge}`;
+
+  function updateProgress() {
+    const percent = Math.round(completed.size / totalChallenges * 100);
+    progressText.textContent = `${percent}%`;
+    progressBar.style.width = `${percent}%`;
+  }
+
+  function renderLessonList() {
+    lessonList.replaceChildren();
+
+    lessons.forEach((lesson, index) => {
+      const unlocked = index < unlockedLessons;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "ctx-lesson-btn";
+
+      if (index === currentLesson) button.classList.add("ctx-selected");
+      button.disabled = !unlocked;
+
+      const title = document.createElement("strong");
+      title.textContent = `${unlocked ? "✓" : "🔒"} Lesson ${index + 1}: ${lesson.title}`;
+
+      const subtitle = document.createElement("small");
+      subtitle.textContent = lesson.subtitle;
+
+      button.append(title, subtitle);
+
+      if (unlocked) {
+        button.addEventListener("click", () => {
+          currentLesson = index;
+          currentChallenge = 0;
+          renderChallenge();
+        });
+      }
+
+      lessonList.appendChild(button);
+    });
+  }
+
+  function renderChallenge() {
+    const lesson = lessons[currentLesson];
+    const challenge = lesson.challenges[currentChallenge];
+    const isCompleted = completed.has(key(currentLesson, currentChallenge));
+
+    lessonNumber.textContent = `LESSON ${currentLesson + 1} OF ${lessons.length}`;
+    lessonTitle.textContent = lesson.title;
+    lessonDescription.textContent = lesson.description;
+    challengeTitle.textContent = `Challenge ${currentChallenge + 1}: ${challenge.title}`;
+    challengeDescription.textContent = challenge.description;
+    commandHint.textContent = challenge.hint;
+    commandInput.value = "";
+    output.textContent = "Your simulated results will appear here.";
+
+    feedback.className = "ctx-feedback";
+    feedback.textContent = isCompleted
+      ? "You have already completed this challenge. You can practise it again."
+      : "Type the requested command and press Run command.";
+
+    const lastChallenge = currentChallenge === lesson.challenges.length - 1;
+    const finalChallenge = currentLesson === lessons.length - 1 && lastChallenge;
+
+    nextButton.disabled = !isCompleted || finalChallenge;
+    nextButton.textContent = finalChallenge
+      ? "Training complete ✓"
+      : lastChallenge ? "Unlock next lesson →" : "Next challenge →";
+
+    renderLessonList();
+    updateProgress();
+  }
+
+  function runCommand() {
+    const command = commandInput.value.trim().toLowerCase();
+    if (!command) return;
+
+    if (command === "clear") {
+      output.textContent = "Output cleared. Your progress has not changed.";
+      feedback.className = "ctx-feedback";
+      feedback.textContent = "Output cleared. Continue your challenge.";
+      return;
+    }
+
+    const challenge = lessons[currentLesson].challenges[currentChallenge];
+
+    if (command !== challenge.hint) {
+      feedback.className = "ctx-feedback ctx-incorrect";
+      feedback.textContent = "Not quite! Check the command hint and try again.";
+      output.textContent = "No matching training command.\nTip: Check the spelling of the requested command.";
+      return;
+    }
+
+    completed.add(key(currentLesson, currentChallenge));
+    output.textContent = challenge.output;
+    feedback.className = "ctx-feedback ctx-correct";
+    feedback.textContent = "Correct! Challenge completed. Read the result, then continue.";
+
+    const lessonComplete = lessons[currentLesson].challenges.every((_, index) =>
+      completed.has(key(currentLesson, index))
+    );
+
+    if (lessonComplete && currentLesson < lessons.length - 1) {
+      unlockedLessons = Math.max(unlockedLessons, currentLesson + 2);
+    }
+
+    renderLessonList();
+    updateProgress();
+
+    const lastChallenge = currentChallenge === lessons[currentLesson].challenges.length - 1;
+    const finalChallenge = currentLesson === lessons.length - 1 && lastChallenge;
+
+    nextButton.disabled = finalChallenge;
+    nextButton.textContent = finalChallenge
+      ? "Training complete ✓"
+      : lastChallenge ? "Unlock next lesson →" : "Next challenge →";
+
+    if (finalChallenge) {
+      feedback.textContent = "Excellent work! You completed all three training lessons.";
+    }
+  }
+
+  commandForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    runCommand();
+  });
+
+  nextButton.addEventListener("click", () => {
+    const challenge = lessons[currentLesson].challenges[currentChallenge];
+    if (!completed.has(key(currentLesson, currentChallenge))) return;
+
+    if (currentChallenge < challengeCount(currentLesson) - 1) {
+      currentChallenge++;
+    } else if (currentLesson < lessons.length - 1 &&
+               currentLesson + 1 < unlockedLessons) {
+      currentLesson++;
+      currentChallenge = 0;
+    } else {
+      return;
+    }
+
+    renderChallenge();
+  });
+
+  function challengeCount(index) {
+    return lessons[index].challenges.length;
+  }
+
+  resetButton.addEventListener("click", () => {
+    lessons[currentLesson].challenges.forEach((_, index) => {
+      completed.delete(key(currentLesson, index));
+    });
+
+    unlockedLessons = Math.min(unlockedLessons, currentLesson + 1);
+    currentChallenge = 0;
+    renderChallenge();
+  });
+
+  renderChallenge();
+})();
+</script>
+</body>
+</html>
